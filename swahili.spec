@@ -1,4 +1,4 @@
-Summary:	Kiswahili to english dictionary
+Summary:	Kiswahili to English dictionary
 Summary(pl):	S³ownik kiswahili-angielski
 Name:		swahili
 Version:	1.0
@@ -12,7 +12,7 @@ BuildRequires:	libstdc++-devel
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
-Kiswahili to english dictionary.
+Kiswahili to English dictionary.
 
 %description -l pl
 S³ownik kiswahili-angielski.
