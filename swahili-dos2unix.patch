@@ -1,0 +1,904 @@
+diff -urN swahili.orig/source/adjetc.cpp swahili/source/adjetc.cpp
+--- swahili.orig/source/adjetc.cpp	Sat Sep 27 23:50:54 1997
++++ swahili/source/adjetc.cpp	Sat Dec 14 16:48:52 2002
+@@ -28,9 +28,10 @@
+ //* file includes
+ #include <fstream.h>
+ #include <string.h>
++#include <stdlib.h>
+ #include <stdio.h>
+ //* Main Routine
+-main()
++int main()
+ {
+ //* variables
+   FILE * source;        /*  input source file  */
+@@ -64,16 +65,16 @@
+   };
+   struct control_record control_data;
+ //* executable code
+-  source = fopen ("ADJETC.SRC","r");
++  source = fopen ("adjetc.src","r");
+   if (source == NULL)
+   {
+-    cout << "\n" << "Unable to open input file - ADJETC.SRC";
++    cout << "\n" << "Unable to open input file - adjetc.src";
+     return 16;
+   }
+-  dictionary = fopen ("ADJETC.DCY","wb");
++  dictionary = fopen ("adjetc.dcy","wb");
+   if (dictionary == NULL)
+   {
+-    cout << "\n" << "Unable to open output file - ADJETC.DCY";
++    cout << "\n" << "Unable to open output file - adjetc.dcy";
+     rc = 16;
+     goto cleanup2;
+   }
+@@ -202,23 +203,22 @@
+   fclose (dictionary);
+   if (rc > 0)  return rc;
+ //* Update adj. etc. and total word counts in control file
+-  ctl_file = fopen ("SWAHILI.CTL","rb");
++  ctl_file = fopen ("swahili.ctl","rb");
+   if (ctl_file == NULL)
+   {
+-    cout << "\n" << "SWAHILI.CTL does not exist: run NOUNS first";
+-    cout << "\n" << "then run VERBS and ADJETC to complete file";
++    cout << "\n" << "swahili.ctl does not exist: run nouns first";
++    cout << "\n" << "then run verbs and adjetc to complete file";
+     return 12;
+   }
+-  cout << "\n" << "Updating control file - SWAHILI.CTL";
++  cout << "\n" << "Updating control file - swahili.ctl";
+   fread (&control_data, 32, 1, ctl_file);
+   fclose (ctl_file);
+   control_data.tot_swahili_words = record +
+     control_data.noun_dict_entries +
+     control_data.verb_dict_entries;
+   control_data.adjetc_dict_entries = record;
+-  ctl_file = fopen ("SWAHILI.CTL","wb");
++  ctl_file = fopen ("swahili.ctl","wb");
+   fwrite (&control_data, 32, 1, ctl_file);
+   fclose (ctl_file);
+   return rc;
+ }
+-
+\ No newline at end of file
+diff -urN swahili.orig/source/nouns.cpp swahili/source/nouns.cpp
+--- swahili.orig/source/nouns.cpp	Sat Jan 17 21:13:34 1998
++++ swahili/source/nouns.cpp	Sat Dec 14 16:48:37 2002
+@@ -28,6 +28,7 @@
+ //* file includes
+ #include <fstream.h>
+ #include <string.h>
++#include <stdlib.h>
+ #include <stdio.h>
+ //* global variables
+   int nouns_load (void);
+@@ -41,7 +42,7 @@
+   int record_n = 0;
+   int record_i = 0;
+ //* Main Routine
+-main()
++int main()
+ {
+   int rc = 0;
+ //* executable code
+@@ -68,16 +69,16 @@
+   };
+   struct dict_entry dict_noun;
+ //* executable code
+-  source = fopen ("NOUNS.SRC","r");
++  source = fopen ("nouns.src","r");
+   if (source == NULL)
+   {
+-    cout << "\n" << "Unable to open input file - NOUNS.SRC";
++    cout << "\n" << "Unable to open input file - nouns.src";
+     return 16;
+   }
+-  dictionary = fopen ("NOUNS.DCY","wb");
++  dictionary = fopen ("nouns.dcy","wb");
+   if (dictionary == NULL)
+   {
+-    cout << "\n" << "Unable to open output file - NOUNS.DCY";
++    cout << "\n" << "Unable to open output file - nouns.dcy";
+     rcn = 16;
+     goto cleanup2;
+   }
+@@ -203,16 +204,16 @@
+   int rci = 0;
+   char eng_irreg_plural [20];
+ //* executable code
+-  source = fopen ("IRRPLU.SRC","r");
++  source = fopen ("irrplu.src","r");
+   if (source == NULL)
+   {
+-    cout << "\n" << "Unable to open input file - IRRPLU.SRC";
++    cout << "\n" << "Unable to open input file - irrplu.src";
+     return 16;
+   }
+-  dictionary = fopen ("IRRPLU.DCY","wb");
++  dictionary = fopen ("irrplu.dcy","wb");
+   if (source == NULL)
+   {
+-    cout << "\n" << "Unable to open output file - IRRPLU.DCY";
++    cout << "\n" << "Unable to open output file - irrplu.dcy";
+     rci = 16;
+     goto cleanup2;
+   }
+@@ -267,11 +268,11 @@
+   };
+   struct control_record control_data;
+ //* executable code
+-  ctl_file = fopen ("SWAHILI.CTL","rb");
++  ctl_file = fopen ("swahili.ctl","rb");
+   if (ctl_file == NULL)
+   {
+-    cout << "\n" << "Building new control file - SWAHILI.CTL";
+-    cout << "\n" << "Run VERBS and ADJETC to complete file";
++    cout << "\n" << "Building new control file - swahili.ctl";
++    cout << "\n" << "Run verbs and adjetc to complete file";
+     control_data.program_version = version_constant;
+     control_data.version_date = date_constant;
+     control_data.tot_swahili_words = record_n;
+@@ -282,7 +283,7 @@
+   }
+   else
+   {
+-    cout << "\n" << "Updating existing control file - SWAHILI.CTL";
++    cout << "\n" << "Updating existing control file - swahili.ctl";
+     fread (&control_data, 32, 1, ctl_file);
+     fclose (ctl_file);
+     control_data.tot_swahili_words = record_n +
+@@ -291,9 +292,8 @@
+     control_data.noun_dict_entries = record_n;
+     control_data.eng_irreg_plu_entries = record_i;
+   }
+-  ctl_file = fopen ("SWAHILI.CTL","wb");
++  ctl_file = fopen ("swahili.ctl","wb");
+   fwrite (&control_data, 32, 1, ctl_file);
+   fclose (ctl_file);
+   return rcc;
+ }
+-
+\ No newline at end of file
+diff -urN swahili.orig/source/swahili.cpp swahili/source/swahili.cpp
+--- swahili.orig/source/swahili.cpp	Thu Jun 18 21:50:54 1998
++++ swahili/source/swahili.cpp	Sat Dec 14 16:59:35 2002
+@@ -107,19 +107,18 @@
+   int dict_pos, eng_index;
+   int i;
+ //* Main Routine
+-main()
++int main()
+ {
+ //* variables
+   char found_flag;
+-  char of_subject[21];
+ //* executable code
+ //* display copyright information
+   cout << "\n" << "SWAHILI - Kiswahili to English translation program.";
+-  ctl_file = fopen ("SWAHILI.CTL","rb");
++  ctl_file = fopen ("/usr/share/swahili/swahili.ctl","rb");
+   if (ctl_file == NULL)
+   {
+-    cout << "\n" << "SWAHILI.CTL does not exist: run NOUNS first";
+-    cout << "\n" << "then run VERBS and ADJETC to complete file."
++    cout << "\n" << "/usr/share/swahili/swahili.ctl does not exist: run nouns first";
++    cout << "\n" << "then run verbs and adjetc to complete file."
+       << "\n";
+     return 12;
+   }
+@@ -136,10 +135,10 @@
+     << "redistribute it ";
+   cout << "\n" << "under certain conditions; type 'qc' "
+     << "for details." << "\n";
+-  noun_dict = fopen ("NOUNS.DCY","rb");
+-  verb_dict = fopen ("VERBS.DCY","rb");
+-  adjetc_dict = fopen ("ADJETC.DCY","rb");
+-  irrplu_dict = fopen ("IRRPLU.DCY","rb");
++  noun_dict = fopen ("/usr/share/swahili/nouns.dcy","rb");
++  verb_dict = fopen ("/usr/share/swahili/verbs.dcy","rb");
++  adjetc_dict = fopen ("/usr/share/swahili/adjetc.dcy","rb");
++  irrplu_dict = fopen ("/usr/share/swahili/irrplu.dcy","rb");
+ //* ASK-FOR-A-WORD loop
+ ask:
+   cout << "\n" << "Please enter a Kiswahili word (or 'quit') ... ";
+@@ -410,13 +409,13 @@
+       plural_flag = 'n';
+   if (plural_flag == 'y')
+   {
+-    english_hold = dict_noun.eng_word;
++    strcpy(english_hold,dict_noun.eng_word);
+     eng_index = dict_noun.plural_index;
+   /*  if irregular plural entry exists, pick it up  */
+     if (eng_index > -1)
+     {
+       eng_index = irrplu(eng_index);
+-      english_word = eng_irreg_plural;
++      strcpy(english_word,eng_irreg_plural);
+     }
+     else if (eng_index == -1)    /* -1 means add 's' to word */
+     {
+@@ -476,8 +475,8 @@
+     {
+       cout << "\n" << dict_adjetc.eng_word;
+       if (swahili_hold[0] == 'v')
+-        modify_adj = "plural KI";
+-      else modify_adj = "KI";
++        strcpy(modify_adj,"plural KI");
++      else strcpy(modify_adj,"KI");
+       cout << "\n" << part_speech << " - modifying ";
+       cout << modify_adj << " class noun" << "\n";
+       adjform_found = 'y';
+@@ -496,8 +495,8 @@
+     {
+       cout << "\n" << dict_adjetc.eng_word;
+       if (swahili_hold[0] == 'v')
+-        modify_adj = "plural KI";
+-      else modify_adj = "KI";
++        strcpy(modify_adj,"plural KI");
++      else strcpy(modify_adj,"KI");
+       cout << "\n" << part_speech << " - modifying ";
+       cout << modify_adj << " class noun" << "\n";
+       adjform_found = 'y';
+@@ -542,12 +541,12 @@
+     {
+       cout << "\n" << dict_adjetc.eng_word;
+       if (swahili_hold[1] == 'a')
+-        modify_adj = "plural MA";
++        strcpy(modify_adj,"plural MA");
+       else if (swahili_hold[1] == 'i')
+-        modify_adj = "plural MI";
++        strcpy(modify_adj,"plural MI");
+       else if (swahili_hold[1] == 'b')
+-        modify_adj = "M or N";
+-      else modify_adj = "M or U";
++        strcpy(modify_adj,"M or N");
++      else strcpy(modify_adj,"M or U");
+       cout << "\n" << part_speech << " - modifying ";
+       cout << modify_adj << " class noun" << "\n";
+       adjform_found = 'y';
+@@ -562,7 +561,7 @@
+     if ((dict_pos > -1) && (dict_adjetc.forms_type == 1))
+     {
+       cout << "\n" << dict_adjetc.eng_word;
+-      modify_adj = "plural WA";
++      strcpy(modify_adj,"plural WA");
+       cout << "\n" << part_speech << " - modifying ";
+       cout << modify_adj << " class noun" << "\n";
+       adjform_found = 'y';
+@@ -572,10 +571,10 @@
+             swahili_hold[0] == 'p') && (swahili_hold[1] == 'e'))
+   {        /*  ma-, wa-, pa- + e- or i- makes me-, we-, pe-  */
+     if (swahili_hold[0] == 'm')
+-      modify_adj = "plural MA";
++      strcpy(modify_adj,"plural MA");
+     else if (swahili_hold[0] == 'w')
+-      modify_adj = "plural WA";
+-    else modify_adj = "PA";
++      strcpy(modify_adj,"plural WA");
++    else strcpy(modify_adj,"PA");
+     for (i = 0; i < 15; ++i)
+       swahili_word[i] = swahili_hold[i+1];   /*word w/o m-, w-*/
+     swahili_word[15] = '\x00';   /* mark end of word */
+@@ -611,7 +610,7 @@
+     if ((dict_pos > -1) && (dict_adjetc.forms_type == 1))
+     {
+       cout << "\n" << dict_adjetc.eng_word;
+-      modify_adj = "N or plural U";
++      strcpy(modify_adj,"N or plural U");
+       cout << "\n" << part_speech << " - modifying ";
+       cout << modify_adj << " class noun" << "\n";
+       adjform_found = 'y';
+@@ -623,7 +622,7 @@
+       if ((dict_pos > -1) && (dict_adjetc.forms_type == 1))
+       {
+         cout << "\n" << dict_adjetc.eng_word;
+-        modify_adj = "N or plural U";
++        strcpy(modify_adj,"N or plural U");
+         cout << "\n" << part_speech << " - modifying ";
+         cout << modify_adj << " class noun" << "\n";
+         adjform_found = 'y';
+@@ -638,7 +637,7 @@
+       if ((dict_pos > -1) && (dict_adjetc.forms_type == 1))
+       {
+         cout << "\n" << dict_adjetc.eng_word;
+-        modify_adj = "N";
++        strcpy(modify_adj,"N");
+         cout << "\n" << part_speech << " - modifying ";
+         cout << modify_adj << " class noun" << "\n";
+         adjform_found = 'y';
+@@ -654,7 +653,7 @@
+     if ((dict_pos > -1) && (dict_adjetc.forms_type == 1))
+     {
+       cout << "\n" << dict_adjetc.eng_word;
+-      modify_adj = "N";
++      strcpy(modify_adj,"N");
+       cout << "\n" << part_speech << " - modifying ";
+       cout << modify_adj << " class noun" << "\n";
+       adjform_found = 'y';
+@@ -669,7 +668,7 @@
+     if ((dict_pos > -1) && (dict_adjetc.forms_type == 1))
+     {
+       cout << "\n" << dict_adjetc.eng_word;
+-      modify_adj = "PA";
++      strcpy(modify_adj,"PA");
+       cout << "\n" << part_speech << " - modifying ";
+       cout << modify_adj << " class noun" << "\n";
+       adjform_found = 'y';
+@@ -685,74 +684,74 @@
+   int letter_count = 0;
+   if ((swahili_hold[0] == 'y') && (swahili_hold[1] == 'u'))
+   {
+-    subject_phrase = "M/WA";
++    strcpy(subject_phrase,"M/WA");
+     letter_count = 2;
+   }
+ //* distinguish between wa-le and w-ake (et al)
+   else if ((swahili_hold[0] == 'w') && (swahili_hold[1] == 'a') &&
+       (swahili_hold[2] == 'l'))
+   {
+-    subject_phrase = "plural WA";
++    strcpy(subject_phrase,"plural WA");
+     letter_count = 2;
+   }
+   else if (swahili_hold[0] == 'u')
+   {
+-    subject_phrase = "M/MI or U";
++    strcpy(subject_phrase,"M/MI or U");
+     letter_count = 1;
+   }
+   else if (swahili_hold[0] == 'i')
+   {
+-    subject_phrase = "N or plural MI";
++    strcpy(subject_phrase,"N or plural MI");
+     letter_count = 1;
+   }
+   else if ((swahili_hold[0] == 'z') && (swahili_hold[1] == 'i'))
+   {
+-    subject_phrase = "plural N or plural U";
++    strcpy(subject_phrase,"plural N or plural U");
+     letter_count = 2;
+   }
+   else if ((swahili_hold[0] == 'l') && (swahili_hold[1] == 'i') &&
+            (swahili_hold[2] != 'a'))    /* lia is not valid */
+   {
+-    subject_phrase = "MA";
++    strcpy(subject_phrase,"MA");
+     letter_count = 2;
+   }
+ //* distinguish between ya-le and y-ake (et al)
+   else if ((swahili_hold[0] == 'y') && (swahili_hold[1] == 'a') &&
+            (swahili_hold[2] == 'l'))
+   {
+-    subject_phrase = "plural MA";
++    strcpy(subject_phrase,"plural MA");
+     letter_count = 2;
+   }
+ //* distinguish between pa-le and p-ake (et al)
+   else if ((swahili_hold[0] == 'p') && (swahili_hold[1] == 'a') &&
+            (swahili_hold[2] == 'l'))
+   {
+-    subject_phrase = "PA";
++    strcpy(subject_phrase,"PA");
+     letter_count = 2;
+   }
+   else if (swahili_hold[0] == 'w')
+   {
+-    subject_phrase = "M or plural WA";
++    strcpy(subject_phrase,"M or plural WA");
+     letter_count = 1;
+   }
+   else if (swahili_hold[0] == 'y')
+   {
+-    subject_phrase = "N or plural MI or MA";
++    strcpy(subject_phrase,"N or plural MI or MA");
+     letter_count = 1;
+   }
+   else if (swahili_hold[0] == 'z')
+   {
+-    subject_phrase = "plural N or U";
++    strcpy(subject_phrase,"plural N or U");
+     letter_count = 1;
+   }
+   else if (swahili_hold[0] == 'l')
+   {
+-    subject_phrase = "MA";
++    strcpy(subject_phrase,"MA");
+     letter_count = 1;
+   }
+   else if (swahili_hold[0] == 'p')
+   {
+-    subject_phrase = "PA";
++    strcpy(subject_phrase,"PA");
+     letter_count = 1;
+   }
+   if (letter_count > 0)    /*  found special prefix  */
+@@ -783,16 +782,16 @@
+     if ((swahili_hold[1] == 'a') && (swahili_hold[2] == 'o'))
+     {
+       thisthat_found = 'b';
+-      subject_phrase = "plural WA";
++      strcpy(subject_phrase,"plural WA");
+     }
+     else if ((swahili_hold[1] == 'i') && (swahili_hold[2] == 'i'))
+     {
+       thisthat_found = 'a';
+-      subject_phrase = "N or plural MI";
++      strcpy(subject_phrase,"N or plural MI");
+     }
+     else if (swahili_hold[1] == 'u')
+     {
+-      subject_phrase = "M/MI or U";
++      strcpy(subject_phrase,"M/MI or U");
+       if (swahili_hold[2] == 'o')
+         thisthat_found = 'b';
+       else if (swahili_hold[2] == 'u')
+@@ -804,12 +803,12 @@
+     if ((swahili_hold[1] == 'a') && (swahili_hold[2] == 'w') &&
+         (swahili_hold[3] == 'a'))
+     {
+-      subject_phrase = "plural WA";
++      strcpy(subject_phrase,"plural WA");
+       thisthat_found = 'a';
+     }
+     else if ((swahili_hold[1] == 'a') && (swahili_hold[2] == 'y'))
+     {
+-      subject_phrase = "plural MA";
++      strcpy(subject_phrase,"plural MA");
+       if (swahili_hold[3] == 'a')
+         thisthat_found = 'a';
+       else if (swahili_hold[3] == 'o')
+@@ -819,12 +818,12 @@
+     {
+       if ((swahili_hold[2] == 'k') && (swahili_hold[3] == 'i'))
+       {
+-        subject_phrase = "KI";
++        strcpy(subject_phrase,"KI");
+         thisthat_found = 'a';
+       }
+       else if (swahili_hold[2] == 'l')
+       {
+-        subject_phrase = "MA";
++        strcpy(subject_phrase,"MA");
+         if (swahili_hold[3] == 'i')
+           thisthat_found = 'a';
+         else if (swahili_hold[3] == 'o')
+@@ -832,17 +831,17 @@
+       }
+       else if ((swahili_hold[2] == 'v') && (swahili_hold[3] == 'i'))
+       {
+-        subject_phrase = "plural VI";
++        strcpy(subject_phrase,"plural VI");
+         thisthat_found = 'a';
+       }
+       else if ((swahili_hold[2] == 'y') && (swahili_hold[3] == 'o'))
+       {
+-        subject_phrase = "N or plural MI";
++        strcpy(subject_phrase,"N or plural MI");
+         thisthat_found = 'b';
+       }
+       else if (swahili_hold[2] == 'z')
+       {
+-        subject_phrase = "plural N or plural U";
++        strcpy(subject_phrase,"plural N or plural U");
+         if (swahili_hold[3] == 'i')
+           thisthat_found = 'a';
+         else if (swahili_hold[3] == 'o')
+@@ -851,7 +850,7 @@
+     }
+     else if ((swahili_hold[1] == 'u') && (swahili_hold[2] == 'y'))
+     {
+-      subject_phrase = "M/WA";
++      strcpy(subject_phrase,"M/WA");
+       if (swahili_hold[3] == 'o')
+         thisthat_found = 'b';
+       else if (swahili_hold[3] == 'u')
+@@ -863,12 +862,12 @@
+     if ((swahili_hold[2] == 'c') && (swahili_hold[3] == 'h'))
+     {
+       thisthat_found = 'b';
+-      subject_phrase = "KI";
++      strcpy(subject_phrase,"KI");
+     }
+     else if ((swahili_hold[2] == 'v') && (swahili_hold[3] == 'y'))
+     {
+       thisthat_found = 'b';
+-      subject_phrase = "plural VI";
++      strcpy(subject_phrase,"plural VI");
+     }
+   }
+   if ((thisthat_found == 'a') || (thisthat_found == 'b'))
+@@ -963,115 +962,115 @@
+ //*  look for subject prefix - simple present and other tenses
+   if ((swahili_hold[0] == 'n') && (swahili_hold[1] == 'a'))
+   {
+-    subject_phrase = "first-person singular";
+-    subject_word = "I";
++    strcpy(subject_phrase,"first-person singular");
++    strcpy(subject_word,"I");
+     letter_count = 2;
+     simple_subject_index = 1;
+   }
+   else if (swahili_hold[0] == 'a')
+   {
+-    subject_phrase = "third-person singular";
+-    subject_word = "he, she";
++    strcpy(subject_phrase,"third-person singular");
++    strcpy(subject_word,"he, she");
+     letter_count = 1;
+     simple_subject_index = subject_index = 3;
+   }
+   else if ((swahili_hold[0] == 't') && (swahili_hold[1] == 'w')
+         && (swahili_hold[2] == 'a'))
+   {
+-    subject_phrase = "first-person plural";
+-    subject_word = "we";
++    strcpy(subject_phrase,"first-person plural");
++    strcpy(subject_word,"we");
+     letter_count = 3;
+     simple_subject_index = 4;
+   }
+   else if ((swahili_hold[0] == 'm') && (swahili_hold[1] == 'w')
+         && (swahili_hold[2] == 'a'))
+   {
+-    subject_phrase = "second-person plural";
+-    subject_word = "you";
++    strcpy(subject_phrase,"second-person plural");
++    strcpy(subject_word,"you");
+     letter_count = 3;
+     simple_subject_index = 5;
+   }
+   else if (swahili_hold[0] == 'm')
+   {
+-    subject_phrase = "second-person plural";
+-    subject_word = "you";
++    strcpy(subject_phrase,"second-person plural");
++    strcpy(subject_word,"you");
+     letter_count = 1;
+     subject_index = 5;
+   }
+   else if ((swahili_hold[0] == 'w') && (swahili_hold[1] == 'a'))
+   {
+-    subject_phrase = "second-person singular OR third-person plural";
+-    subject_word = "you, they";
++    strcpy(subject_phrase,"second-person singular OR third-person plural");
++    strcpy(subject_word,"you, they");
+     letter_count = 2;
+     simple_subject_index = 7;
+   }
+   else if ((swahili_hold[0] == 'n') && (swahili_hold[1] == 'i'))
+   {
+-    subject_phrase = "first-person singular";
+-    subject_word = "I";
++    strcpy(subject_phrase,"first-person singular");
++    strcpy(subject_word,"I");
+     letter_count = 2;
+     subject_index = 1;
+   }
+   else if (swahili_hold[0] == 'u')
+   {
+-    subject_phrase = "M/MI class noun";
+-    subject_word = "(it)";
++    strcpy(subject_phrase,"M/MI class noun");
++    strcpy(subject_word,"(it)");
+     letter_count = 1;
+     simple_subject_index = 8;
+   }
+   else if ((swahili_hold[0] == 't') && (swahili_hold[1] == 'u'))
+   {
+-    subject_phrase = "first-person plural";
+-    subject_word = "we";
++    strcpy(subject_phrase,"first-person plural");
++    strcpy(subject_word,"we");
+     letter_count = 2;
+     subject_index = 4;
+   }
+   else if ((swahili_hold[0] == 'k') && (swahili_hold[1] == 'i'))
+   {
+-    subject_phrase = "KI-class noun";
+-    subject_word = "(it)";
++    strcpy(subject_phrase,"KI-class noun");
++    strcpy(subject_word,"(it)");
+     letter_count = 2;
+     simple_subject_index = subject_index = 3;
+   }
+   else if ((swahili_hold[0] == 'v') && (swahili_hold[1] == 'i'))
+   {
+-    subject_phrase = "plural KI-class noun";
+-    subject_word = "(they)";
++    strcpy(subject_phrase,"plural KI-class noun");
++    strcpy(subject_word,"(they)");
+     letter_count = 2;
+     simple_subject_index = subject_index = 6;
+   }
+   else if ((swahili_hold[0] == 'l') && (swahili_hold[1] == 'i'))
+   {
+-    subject_phrase = "MA-class noun";
+-    subject_word = "(it)";
++    strcpy(subject_phrase,"MA-class noun");
++    strcpy(subject_word,"(it)");
+     letter_count = 2;
+     simple_subject_index = subject_index = 3;
+   }
+   else if ((swahili_hold[0] == 'p') && (swahili_hold[1] == 'a'))
+   {
+-    subject_phrase = "PA-class noun";
+-    subject_word = "(it)";
++    strcpy(subject_phrase,"PA-class noun");
++    strcpy(subject_word,"(it)");
+     letter_count = 2;
+     simple_subject_index = subject_index = 3;
+   }
+   else if ((swahili_hold[0] == 'y') && (swahili_hold[1] == 'a'))
+   {
+-    subject_phrase = "plural MA-class noun";
+-    subject_word = "(they)";
++    strcpy(subject_phrase,"plural MA-class noun");
++    strcpy(subject_word,"(they)");
+     letter_count = 2;
+     simple_subject_index = subject_index = 6;
+   }
+   else if (swahili_hold[0] == 'i')
+   {
+-    subject_phrase = "N-class or plural MI-class noun";
+-    subject_word = "(it/they)";
++    strcpy(subject_phrase,"N-class or plural MI-class noun");
++    strcpy(subject_word,"(it/they)");
+     letter_count = 1;
+     simple_subject_index = subject_index = 9;
+   }
+   else if ((swahili_hold[0] == 'z') && (swahili_hold[1] == 'i'))
+   {
+-    subject_phrase = "plural N-class or plural U-class noun";
+-    subject_word = "(they)";
++    strcpy(subject_phrase,"plural N-class or plural U-class noun");
++    strcpy(subject_word,"(they)");
+     letter_count = 2;
+     simple_subject_index = subject_index = 6;
+   }
+@@ -1114,14 +1113,14 @@
+       tense_index = 0;
+       if (simple_subject_index == 7)
+       {
+-        subject_phrase = "third-person plural";
+-        subject_word = "they";
++        strcpy(subject_phrase,"third-person plural");
++        strcpy(subject_word,"they");
+         subject_index = 6;
+       }
+       else if (simple_subject_index == 8)
+       {
+-        subject_phrase = "MI-class noun or second-person singular";
+-        subject_word = "(it)/you";
++        strcpy(subject_phrase,"MI-class noun or second-person singular");
++        strcpy(subject_word,"(it)/you");
+         subject_index = 9;
+       }
+     }
+@@ -1289,15 +1288,15 @@
+   tense_index = 0;
+   if ((swahili_hold[0] == 's') && (swahili_hold[1] == 'i'))
+   {
+-    subject_phrase = "first-person singular";
+-    subject_word = "I";
++    strcpy(subject_phrase,"first-person singular");
++    strcpy(subject_word,"I");
+     letter_count = 2;
+     subject_index = 1;
+   }
+   else if ((swahili_hold[0] == 'h') && (swahili_hold[1] == 'u'))
+   {
+-    subject_phrase = "second-person singular";
+-    subject_word = "you";
++    strcpy(subject_phrase,"second-person singular");
++    strcpy(subject_word,"you");
+     letter_count = 2;
+     subject_index = 2;
+   }
+@@ -1305,78 +1304,78 @@
+   {
+     if ((swahili_hold[2] == 't') && (swahili_hold[3] == 'u'))
+     {
+-      subject_phrase = "first-person plural";
+-      subject_word = "we";
++      strcpy(subject_phrase,"first-person plural");
++      strcpy(subject_word,"we");
+       letter_count = 4;
+       subject_index = 4;
+     }
+     else if (swahili_hold[2] == 'm')
+     {
+-      subject_phrase = "second-person plural";
+-      subject_word = "you";
++      strcpy(subject_phrase,"second-person plural");
++      strcpy(subject_word,"you");
+       letter_count = 3;
+       subject_index = 5;
+     }
+     else if ((swahili_hold[2] == 'w') && (swahili_hold[3] == 'a'))
+     {
+-      subject_phrase = "third-person plural";
+-      subject_word = "they";
++      strcpy(subject_phrase,"third-person plural");
++      strcpy(subject_word,"they");
+       letter_count = 4;
+       subject_index = 6;
+     }
+     else if ((swahili_hold[2] == 'k') && (swahili_hold[3] == 'i'))
+     {
+-      subject_phrase = "KI-class noun";
+-      subject_word = "(it)";
++      strcpy(subject_phrase,"KI-class noun");
++      strcpy(subject_word,"(it)");
+       letter_count = 4;
+       subject_index = 3;
+     }
+     else if ((swahili_hold[2] == 'v') && (swahili_hold[3] == 'i'))
+     {
+-      subject_phrase = "plural KI-class noun";
+-      subject_word = "(they)";
++      strcpy(subject_phrase,"plural KI-class noun");
++      strcpy(subject_word,"(they)");
+       letter_count = 4;
+       subject_index = 6;
+     }
+     else if (swahili_hold[2] == 'u')
+     {
+-      subject_phrase = "M/MI class noun";
+-      subject_word = "(it)";
++      strcpy(subject_phrase,"M/MI class noun");
++      strcpy(subject_word,"(it)");
+       letter_count = 3;
+       subject_index = 3;
+     }
+     else if ((swahili_hold[2] == 'l') && (swahili_hold[3] == 'i'))
+     {
+-      subject_phrase = "MA-class noun";
+-      subject_word = "(it)";
++      strcpy(subject_phrase,"MA-class noun");
++      strcpy(subject_word,"(it)");
+       letter_count = 4;
+       subject_index = 3;
+     }
+     else if ((swahili_hold[2] == 'y') && (swahili_hold[3] == 'a'))
+     {
+-      subject_phrase = "plural MA-class noun";
+-      subject_word = "(they)";
++      strcpy(subject_phrase,"plural MA-class noun");
++      strcpy(subject_word,"(they)");
+       letter_count = 4;
+       subject_index = 6;
+     }
+     else if (swahili_hold[2] == 'i')
+     {
+-      subject_phrase = "N-class or plural MI-class noun";
+-      subject_word = "(it, they)";
++      strcpy(subject_phrase,"N-class or plural MI-class noun");
++      strcpy(subject_word,"(it, they)");
+       letter_count = 3;
+       subject_index = 6;
+     }
+     else if ((swahili_hold[2] == 'z') && (swahili_hold[3] == 'i'))
+     {
+-      subject_phrase = "plural N-class or plural U-class noun";
+-      subject_word = "(they)";
++      strcpy(subject_phrase,"plural N-class or plural U-class noun");
++      strcpy(subject_word,"(they)");
+       letter_count = 4;
+       subject_index = 6;
+     }
+     else    /* ha- by itself */
+     {
+-      subject_phrase = "third-person singular";
+-      subject_word = "he, she";
++      strcpy(subject_phrase,"third-person singular");
++      strcpy(subject_word,"he, she");
+       letter_count = 2;
+       subject_index = 3;
+     }
+@@ -1529,22 +1528,22 @@
+     else    /* found word - convert speech_part, then return */
+     {
+     if (dict_adjetc.speech_part == 'j')
+-      part_speech = "adjective";
++      strcpy(part_speech,"adjective");
+     else if (dict_adjetc.speech_part == 'c')
+-      part_speech = "conjunction";
++      strcpy(part_speech,"conjunction");
+     else if (dict_adjetc.speech_part == 'p')
+-      part_speech = "pronoun";
++      strcpy(part_speech,"pronoun");
+     else if (dict_adjetc.speech_part == 'a')
+-      part_speech = "adverb";
++      strcpy(part_speech,"adverb");
+     else if (dict_adjetc.speech_part == 'r')
+-      part_speech = "preposition";
++      strcpy(part_speech,"preposition");
+     else if (dict_adjetc.speech_part == 'v')
+-      part_speech = "irregular verb form";
++      strcpy(part_speech,"irregular verb form");
+     else if (dict_adjetc.speech_part == 'i')
+-      part_speech = "interjection";
++      strcpy(part_speech,"interjection");
+     else if (dict_adjetc.speech_part == 'x')  /* not applicable */
+-      part_speech = "x";
+-    else part_speech = "x";
++      strcpy(part_speech,"x");
++    else strcpy(part_speech,"x");
+     return (mid_entry);
+     }
+   }
+@@ -1559,4 +1558,3 @@
+   fread (eng_irreg_plural, IRRPLU_ENTRY_SIZE, 1, irrplu_dict);
+   return index_in;
+ }
+-
+\ No newline at end of file
+diff -urN swahili.orig/source/verbs.cpp swahili/source/verbs.cpp
+--- swahili.orig/source/verbs.cpp	Sat Sep 27 23:48:58 1997
++++ swahili/source/verbs.cpp	Sat Dec 14 16:48:31 2002
+@@ -27,9 +27,10 @@
+ //* file includes
+ #include <fstream.h>
+ #include <string.h>
++#include <stdlib.h>
+ #include <stdio.h>
+ //* Main Routine
+-main()
++int main()
+ {
+ //* variables
+   FILE * source;        /*  input source file  */
+@@ -67,16 +68,16 @@
+   };
+   struct control_record control_data;
+ //* executable code
+-  source = fopen ("VERBS.SRC","r");
++  source = fopen ("verbs.src","r");
+   if (source == NULL)
+   {
+-    cout << "\n" << "Unable to open input file - VERBS.SRC";
++    cout << "\n" << "Unable to open input file - verbs.src";
+     return 16;
+   }
+-  dictionary = fopen ("VERBS.DCY","wb");
++  dictionary = fopen ("verbs.dcy","wb");
+   if (dictionary == NULL)
+   {
+-    cout << "\n" << "Unable to open output file - VERBS.DCY";
++    cout << "\n" << "Unable to open output file - verbs.dcy";
+     rc = 16;
+     goto cleanup2;
+   }
+@@ -257,23 +258,22 @@
+   fclose (dictionary);
+   if (rc > 0)  return rc;
+ //* Update verb and total word counts in control file
+-  ctl_file = fopen ("SWAHILI.CTL","rb");
++  ctl_file = fopen ("swahili.ctl","rb");
+   if (ctl_file == NULL)
+   {
+-    cout << "\n" << "SWAHILI.CTL does not exist: run NOUNS first";
+-    cout << "\n" << "then run VERBS and ADJETC to complete file";
++    cout << "\n" << "swahili.ctl does not exist: run nouns first";
++    cout << "\n" << "then run verbs and adjetc to complete file";
+     return 12;
+   }
+-  cout << "\n" << "Updating control file - SWAHILI.CTL";
++  cout << "\n" << "Updating control file - swahili.ctl";
+   fread (&control_data, 32, 1, ctl_file);
+   fclose (ctl_file);
+   control_data.tot_swahili_words = record +
+     control_data.noun_dict_entries +
+     control_data.adjetc_dict_entries;
+   control_data.verb_dict_entries = record;
+-  ctl_file = fopen ("SWAHILI.CTL","wb");
++  ctl_file = fopen ("swahili.ctl","wb");
+   fwrite (&control_data, 32, 1, ctl_file);
+   fclose (ctl_file);
+   return rc;
+ }
+-
+\ No newline at end of file
