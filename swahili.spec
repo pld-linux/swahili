@@ -6,6 +6,7 @@ Release:	1
 License:	GPL
 Group:		Applications/Dictionaries
 Source0:	ftp://ftp.dict.org/pub/dict/contrib/%{name}.tar.gz
+# Source0-md5:	c91510ef3a7a193ae40324c9b6ee27f4
 Patch0:		%{name}-dos2unix.patch
 BuildRequires:	libstdc++-devel
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
