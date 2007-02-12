@@ -1,5 +1,5 @@
 Summary:	Kiswahili to English dictionary
-Summary(pl):	S³ownik kiswahili-angielski
+Summary(pl.UTF-8):   SÅ‚ownik kiswahili-angielski
 Name:		swahili
 Version:	1.0
 Release:	1
@@ -14,8 +14,8 @@ BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 %description
 Kiswahili to English dictionary.
 
-%description -l pl
-S³ownik kiswahili-angielski.
+%description -l pl.UTF-8
+SÅ‚ownik kiswahili-angielski.
 
 %prep
 %setup -q -n %{name}/source
