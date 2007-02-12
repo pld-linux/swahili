@@ -1,5 +1,5 @@
 Summary:	Kiswahili to English dictionary
-Summary(pl.UTF-8):   Słownik kiswahili-angielski
+Summary(pl.UTF-8):	Słownik kiswahili-angielski
 Name:		swahili
 Version:	1.0
 Release:	1
